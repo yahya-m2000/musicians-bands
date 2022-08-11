@@ -1,5 +1,11 @@
 const {db} = require('./db');
 const {Band, Musician} = require('./index')
+const {
+    seedBand,
+    seedMusician,
+    seedSong,
+  } = require('./seedData');
+const { Song } = require('./Song');
 
 describe('Band and Musician Models', () => {
     /**
@@ -13,12 +19,9 @@ describe('Band and Musician Models', () => {
     })
 
     test('can create a Band', async () => {
-        x = await Band.create({
-            name: 'Polyphia',
-            genre: 'Math Rock'
-        })
-        expect(x.name).toBe('Polyphia');
-        expect(x.genre).toBe('Polyphia');
+        const newBand = await Band.create(seedBand[0])
+        expect(newBand.name).toBe(seedBand[0].name);
+        expect(newBand.genre).toBe(seedBand[0].genre);
     })
 
     test('can create a Musician', async () => {
@@ -29,5 +32,50 @@ describe('Band and Musician Models', () => {
         })
         expect(testMusician.name).toBe('Electric Guitar');
         expect(testMusician.instrument).toBe('Electric Guitar');
+    })
+
+    test('Band can have many Musicians', async () => {
+        await db.sync({ force: true})
+
+        const newBand = await Band.create(seedBand[0])
+
+        const newMusician = await Musician.create(seedMusician[0])
+
+        await newBand.addMusician(newMusician);
+
+        const guitarist = await newBand.getMusicians()
+        
+        expect(guitarist instanceof Musician).toBeTruthy
+    })
+    
+    test ('Band can have many Song', async () => {
+        await db.sync({ force: true})
+
+        const newBand = await Band.create(seedBand[0])
+
+        const newSong = await Song.create(seedSong[0])
+
+        await newBand.addSong(newSong);
+
+        const song = await newBand.getSongs()
+
+        expect(song instanceof Song).toBeTruthy
+
+    })
+    test.only('Bands can have same Song', async () => {
+        await db.sync({ force: true})
+
+        const newBand = await Band.create(seedBand[0])
+        const newBand2 = await Band.create(seedBand[1])
+
+        const newSong = await Song.create(seedSong[0])
+
+        await newBand.addSong(newSong);
+        await newBand2.addSong(newSong);
+
+        const song = await newBand.getSongs()
+
+        expect(song instanceof Song).toBeTruthy
+
     })
 })
