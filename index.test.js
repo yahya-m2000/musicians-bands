@@ -62,20 +62,20 @@ describe('Band and Musician Models', () => {
         expect(song instanceof Song).toBeTruthy
 
     })
-    test.only('Bands can have same Song', async () => {
+    test.only('Find all Musicians within Band', async () => {
         await db.sync({ force: true})
 
         const newBand = await Band.create(seedBand[0])
-        const newBand2 = await Band.create(seedBand[1])
 
-        const newSong = await Song.create(seedSong[0])
+        const newMusician = await Musician.create(seedMusician[0])
 
-        await newBand.addSong(newSong);
-        await newBand2.addSong(newSong);
+        await newBand.addMusician(newMusician);
 
-        const song = await newBand.getSongs()
+        const guitarist = await newBand.findAll({
+            include: Musician
+        })
 
-        expect(song instanceof Song).toBeTruthy
+        expect(guitarist instanceof Musician).toBeTruthy
 
     })
 })
